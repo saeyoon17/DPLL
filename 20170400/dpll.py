@@ -6,7 +6,7 @@ class DPLL():
     def __init__(self, target_file):
         self.target_file = target_file
 
-    def dpll(self):
+    def dpll(self, mode):
         temp = Formula_Gen(self.target_file)
         temp.gen_formula()
         temp.make_variables()
@@ -35,4 +35,9 @@ class DPLL():
                 temp_formula.backtrack(learned_clause)
 
             else:
-                temp_formula.decision()
+                if(mode == "dlis"):
+                    temp_formula.decision_dlis()
+                elif(mode == "prop"):
+                    temp_formula.decision_proportional()
+                else:
+                    temp_formula.decision_random()

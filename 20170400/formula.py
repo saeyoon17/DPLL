@@ -9,6 +9,12 @@ class Formula():
         self.clause_lst = clause_lst
         self.assignment = []
 
+        decision_strategy = []
+        for i in range(len(var_lst)):
+            decision_strategy.append(0)
+
+        self.decision_strategy = decision_strategy
+
     # return True if valuation under assignment var_lst is True
     # return False if valuation under assignment var_lst is False
     # return Formula if undetermined
@@ -69,7 +75,6 @@ class Formula():
         for i in range(len(self.clause_lst)):
             temp = self.clause_lst[i]
             if(temp.valuation(self.var_lst) == False):
-
                 # make a new instance with the same information
                 target_clause = Clause(len(self.clause_lst), temp.clause)
                 break
@@ -117,6 +122,8 @@ class Formula():
         while(isinstance(valuated, bool)):
             # assignement가 비어있을 경우도 고려해야함
             decision, target_var, var_value, clause_idx = self.assignment[-1]
+            self.decision_strategy[int(target_var)-1
+                                   ] = self.decision_strategy[int(target_var)-1] + 1
             del self.assignment[-1]
             self.var_lst[int(target_var)-1].value = None
 
@@ -124,15 +131,78 @@ class Formula():
 
         return
 
-    def decision(self):
-        i = 0
-        temp = random.choice(self.var_lst)
-        while(i < len(self.var_lst)):
-            temp = random.choice(self.var_lst)
-            if(temp.value == None):
+    def decision_dlis(self):
+
+        # DLIS Strategy
+        current_state = self.valuation()
+
+        # Find variable with the most positive literal
+        max_cnt_cp_var = None
+        max_cnt_cp = 0
+        for i in range(len(self.var_lst)):
+            target_var = int(self.var_lst[i].name)
+            cnt = 0
+            for j in range(len(current_state)):
+                if target_var in current_state[j][0]:
+                    cnt = cnt + 1
+            if(cnt > max_cnt_cp):
+                max_cnt_cp = cnt
+                max_cnt_cp_var = self.var_lst[target_var-1]
+
+        max_cnt_cn_var = None
+        max_cnt_cn = 0
+        for i in range(len(self.var_lst)):
+            target_var = int(self.var_lst[i].name) * -1
+            cnt = 0
+            for j in range(len(current_state)):
+                if target_var in current_state[j][0]:
+                    cnt = cnt + 1
+            if(cnt > max_cnt_cn):
+                max_cnt_cn = cnt
+                max_cnt_cn_var = self.var_lst[abs(target_var)-1]
+
+        if(max_cnt_cp > max_cnt_cn):
+            max_cnt_cp_var.value = True
+            self.assignment.append(
+                ["decision", max_cnt_cp_var.name, True, None])
+        else:
+            max_cnt_cn_var.value = False
+            self.assignment.append(
+                ["decision", max_cnt_cn_var.name, False, None])
+
+    def decision_random(self):
+        while(True):
+            temp_var = random.choice(self.var_lst)
+            if(temp_var.value == None):
                 new_value = bool(random.getrandbits(1))
-                temp.value = new_value
+                temp_var.value = new_value
                 self.assignment.append(
-                    ["decision", temp.name, new_value, None])
+                    ["decision", temp_var.name, new_value, None])
                 break
-            i = i + 1
+
+    def decision_proportional(self):
+        # My strategy #1: Doing proportionally
+        decision_lst = []
+        flag = False
+        for i in range(len(self.decision_strategy)):
+            if(self.decision_strategy[i] == 0 or self.var_lst[i].value != None):
+                decision_lst.append(0)
+            else:
+                decision_lst.append(1/self.decision_strategy[i])
+                flag = True
+
+        while(True):
+
+            if(flag):
+                temp = random.choices(
+                    self.var_lst, weights=decision_lst, k=1)
+                temp_var = temp[0]
+            else:
+                temp_var = random.choice(self.var_lst)
+
+            if(temp_var.value == None):
+                new_value = bool(random.getrandbits(1))
+                temp_var.value = new_value
+                self.assignment.append(
+                    ["decision", temp_var.name, new_value, None])
+                break
