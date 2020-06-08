@@ -1,7 +1,7 @@
 from building_block import Clause, Var
 
 
-class Formula_Gen():
+class FormulaGen():
     def __init__(self, file):
         self.file = file
         self.num_clause = -1

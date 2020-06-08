@@ -1,4 +1,4 @@
-from formula_gen import Formula_Gen
+from formula_gen import FormulaGen
 from formula import Formula
 
 
@@ -7,7 +7,7 @@ class DPLL():
         self.target_file = target_file
 
     def dpll(self, mode):
-        temp = Formula_Gen(self.target_file)
+        temp = FormulaGen(self.target_file)
         temp.gen_formula()
         temp.make_variables()
         temp.make_clauses()

@@ -18,14 +18,13 @@ if(s == "SATISFIABLE"):
     output_str = "v"
 
     for i in range(len(v)):
-        if(v[i].value == True):
-            output_str = output_str + " " + v[i].name
 
-        elif(v[i].value == False):
-            output_str = output_str + " " + "-" + v[i].name
+        if(v[i].value != None):
+            if(v[i].value == True):
+                output_str = output_str + " " + v[i].name
 
-        else:
-            continue
+            if(v[i].value == False):
+                output_str = output_str + " " + "-" + v[i].name
 
         if(i == len(v) - 1):
             output_str = output_str + " 0"
